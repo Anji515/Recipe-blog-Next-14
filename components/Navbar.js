@@ -8,10 +8,18 @@ import { logEvent } from "firebase/analytics";
 import { analytics } from "../utils/firebaseAnalytics";
 import { useAuthentication } from "@app/Providers/AuthContext";
 import Logo from '../assets/Logo.png'
+import { Action } from "./Action";
 
 const Navbar = () => {
   let [open, setOpen] = useState(false);
-  const {serverSession,signOut} = useAuthentication()
+  const {serverSession,signOut,user} = useAuthentication()
+  console.log('server',serverSession)
+  console.log('user',user)
+
+  const handleLogout=()=>{
+    signOut()
+    Action()
+  }
 
   return (
     <nav className="shadow-md w-full fixed top-0 left-0 z-[99]">
@@ -66,6 +74,7 @@ const Navbar = () => {
                 onClick={() => {
                   setOpen(!open)
                   logEvent(analytics,'Fired event: on Contacts')
+                  {!serverSession && alert('Please login first')}
                 }}
               >
                 Contact
@@ -77,6 +86,7 @@ const Navbar = () => {
                 onClick={() => {
                   setOpen(!open)
                   logEvent(analytics,'Fired event: on Recipes')
+                  {!user && alert('Please login first')}
                 }}
               >
                 Recipes
@@ -111,12 +121,13 @@ const Navbar = () => {
                 <Link href="/profile">
                   <h2
                     className="text-xl font-semibold"
-                    onClick={() => setOpen(!open)}
+                    onClick={() => {
+                      setOpen(!open)}}
                   >
                     {serverSession?.user?.user_metadata?.user_name}
                   </h2>
                 </Link>
-                <Button onClick={signOut}>Logout</Button>
+                <Button onClick={ handleLogout }>Logout</Button>
               </div>
             )}
             {!serverSession?.user?.email && (
